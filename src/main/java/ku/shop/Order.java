@@ -8,21 +8,30 @@ public class Order {
     private int id;
     private List<OrderItem> items;
     private LocalDateTime date;
+    private ProductCatalog inventory;
 
-    public Order(int id) {
+    public Order(ProductCatalog inventory, int id) {
         this.id = id;
         this.items = new ArrayList<>();
         this.date = LocalDateTime.now();
+        this.inventory = inventory;
     }
 
-    public Order() {
+    public Order(ProductCatalog inventory) {
         this.id = 0;
         this.items = new ArrayList<>();
         this.date = LocalDateTime.now();
+        this.inventory = inventory;
     }
 
     public void addItem(Product prod, int quantity) {
-        items.add(new OrderItem(prod, quantity));
+        Integer amountInStock = inventory.getStock(prod);
+        if (amountInStock >= quantity) {
+            items.add(new OrderItem(prod, quantity));
+        }
+        else {
+            throw new IllegalOrderException(prod, quantity, amountInStock);
+        }
     }
 
     public double getTotal() {
